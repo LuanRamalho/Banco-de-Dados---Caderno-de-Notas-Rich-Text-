@@ -352,18 +352,30 @@ class MainApp(QMainWindow):
         query = self.searchBar.text().lower()
         for i in range(self.tree.topLevelItemCount()):
             notebook_item = self.tree.topLevelItem(i)
-            # Filtra cadernos
-            notebook_item.setHidden(query not in notebook_item.text(0).lower())
+            notebook_matches = query in notebook_item.text(0).lower()
             
-            # Filtra seções dentro de cadernos
+            # Verifica se alguma seção ou nota dentro do caderno combina com a busca
+            section_matches = False
             for j in range(notebook_item.childCount()):
                 section_item = notebook_item.child(j)
-                section_item.setHidden(query not in section_item.text(0).lower())
+                section_item_matches = query in section_item.text(0).lower()
                 
-                # Filtra notas dentro das seções
+                # Verifica se alguma nota dentro da seção combina com a busca
+                note_matches = False
                 for k in range(section_item.childCount()):
                     note_item = section_item.child(k)
-                    note_item.setHidden(query not in note_item.text(0).lower())
+                    note_item_matches = query in note_item.text(0).lower()
+                    note_item.setHidden(not note_item_matches)
+                    
+                    if note_item_matches:
+                        note_matches = True
+                
+                section_item.setHidden(not (section_item_matches or note_matches))
+                
+                if section_item_matches or note_matches:
+                    section_matches = True
+            
+            notebook_item.setHidden(not (notebook_matches or section_matches))
 
 
 
